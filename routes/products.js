@@ -14,7 +14,7 @@ const supabaseUrl = 'https://cihwtaciqnlnxxjygbht.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-router.get('/get/all', async (req, res) => {
+router.get('/', async (req, res) => {
     const { category } = req.query;
 
     const query = supabase.from('products').select();

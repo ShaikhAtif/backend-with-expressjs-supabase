@@ -12,7 +12,7 @@ const saltRounds = process.env.SALT_ROUND ? parseInt(process.env.SALT_ROUND) : 1
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 /* GET users listing. */
-router.get('/get/all', async function (req, res, next) {
+router.get('/', async function (req, res, next) {
   const { data, error } = await supabase
     .from('users')
     .select()
