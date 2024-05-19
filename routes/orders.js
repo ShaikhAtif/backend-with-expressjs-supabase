@@ -9,7 +9,7 @@ const supabaseUrl = 'https://cihwtaciqnlnxxjygbht.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         const { data: orders, error: orderError } = await supabase
             .from('orders')
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -75,7 +75,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     const { user_id, cart_id } = req.body;
 
     if (!user_id || !cart_id) {
