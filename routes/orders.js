@@ -9,7 +9,30 @@ const supabaseUrl = 'https://cihwtaciqnlnxxjygbht.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-router.get('/', async (req, res) => {
+/**
+ * @swagger
+ * /orders:
+ *   get:
+ *     summary: Get all orders
+ *     description: Retrieve a list of all orders along with their carts and users
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: Bearer {token}
+ *     responses:
+ *       200:
+ *         description: A list of orders with their carts and users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', verifyToken, async (req, res) => {
     try {
         const { data: orders, error: orderError } = await supabase
             .from('orders')
@@ -17,21 +40,51 @@ router.get('/', async (req, res) => {
 
         if (orderError) {
             console.error(orderError);
-            return res.status(500).send({ error: 'Failed to retrieve cart.' });
+            return res.status(500).send({ error: 'Failed to retrieve orders.' });
         }
 
         if (!orders) {
-            return res.status(404).send({ error: 'Cart not found.' });
+            return res.status(404).send({ error: 'Orders not found.' });
         }
 
-        res.send(orders);
+        res.status(200).send(orders);
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Internal server error.' });
     }
 });
 
-router.get('/:id', async (req, res) => {
+/**
+ * @swagger
+ * /orders/{id}:
+ *   get:
+ *     summary: Get an order by ID
+ *     description: Retrieve a specific order by ID along with its cart items and products
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: Bearer {token}
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The order ID
+ *     responses:
+ *       200:
+ *         description: A specific order with its cart items and products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -68,14 +121,51 @@ router.get('/:id', async (req, res) => {
             cart_items: cartItems,
         };
 
-        res.send(orderWithItems);
+        res.status(200).send(orderWithItems);
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Internal server error.' });
     }
 });
 
-router.post('/', async (req, res) => {
+/**
+ * @swagger
+ * /orders:
+ *   post:
+ *     summary: Create a new order
+ *     description: Create a new order for a user based on their cart
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: Bearer {token}
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - cart_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 example: 123
+ *               cart_id:
+ *                 type: string
+ *                 example: 456
+ *     responses:
+ *       201:
+ *         description: Order placed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Missing required fields; user_id and cart_id
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/', verifyToken, async (req, res) => {
     const { user_id, cart_id } = req.body;
 
     if (!user_id || !cart_id) {
@@ -124,7 +214,7 @@ router.post('/', async (req, res) => {
             return res.status(500).send({ error: 'Failed to create order.' });
         }
 
-        res.send({ message: 'Order placed successfully.', data: order });
+        res.status(201).send({ message: 'Order placed successfully.', data: order });
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Internal server error.' });
