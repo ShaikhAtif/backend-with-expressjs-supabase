@@ -3,6 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var swaggerjsdoc = require('swagger-jsdoc');
+var swaggerUi = require('swagger-ui-express');
+// var swaggerOptions = require('./configurations/swaggerConfiguration');
 
 var productsRouter = require('./routes/products');
 var usersRouter = require('./routes/users');
@@ -14,6 +17,47 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+const swaggerOptions = {
+  swaggerDefinition: {
+      openapi: '3.0.0',
+      info: {
+          title: '',
+          description: '',
+          contact: {
+              name: 'Muhammad Atif'
+          },
+      },
+      servers: [
+          {
+              url: "http://localhost:3000/"
+          }
+      ],
+
+      tags: [
+        {
+            name: 'Products',
+            description: 'API for managing products'
+        },
+        {
+            name: 'Users',
+            description: 'API for managing users'
+        },
+        {
+            name: 'Carts',
+            description: 'API for managing carts'
+        },
+        {
+            name: 'Orders',
+            description: 'API for managing orders'
+        }
+    ],
+  },
+  apis: ['./routes/*.js']
+}
+
+const swaggerDocs = swaggerjsdoc(swaggerOptions)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 app.use(logger('dev'));
 app.use(express.json());
