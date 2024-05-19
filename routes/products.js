@@ -2,6 +2,7 @@ var express = require('express');
 var { createClient } = require('@supabase/supabase-js');
 var router = express.Router();
 var env = require("dotenv");
+const verifyToken = require('../middlewares/authMiddleware');
 
 env.config();
 
@@ -14,7 +15,7 @@ const supabaseUrl = 'https://cihwtaciqnlnxxjygbht.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     const { category } = req.query;
 
     const query = supabase.from('products').select();
@@ -34,7 +35,7 @@ router.get('/', async (req, res) => {
 });
 
 
-router.post('/add', async (req, res) => {
+router.post('/add', verifyToken, async (req, res) => {
     const { name, description, price, category } = req.body;
 
     if (!name || !description || !price || !category) {
@@ -54,7 +55,7 @@ router.post('/add', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
     const { name, description, price, category } = req.body;
 
@@ -72,20 +73,20 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
-  
+
     const { data, error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id);
-  
+        .from('products')
+        .delete()
+        .eq('id', id);
+
     if (error) {
-      console.error(error);
-      res.status(500).send({ error: 'Failed to delete product.' });
+        console.error(error);
+        res.status(500).send({ error: 'Failed to delete product.' });
     } else {
-      res.send({ message: 'Product deleted successfully.' });
+        res.send({ message: 'Product deleted successfully.' });
     }
-  });
-  
+});
+
 module.exports = router;

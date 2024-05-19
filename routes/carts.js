@@ -14,7 +14,7 @@ const supabaseUrl = 'https://cihwtaciqnlnxxjygbht.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         const { data: cart, error: cartError } = await supabase
             .from('carts')
@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     const { user_id } = req.body;
 
     if (!user_id) {
@@ -87,7 +87,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/:id/items', async (req, res) => {
+router.post('/:id/items', verifyToken, async (req, res) => {
     const { id } = req.params;
     const { product_id, quantity } = req.body;
 
@@ -113,7 +113,7 @@ router.post('/:id/items', async (req, res) => {
     }
 });
 
-router.put('/:id/items/:item_id', async (req, res) => {
+router.put('/:id/items/:item_id', verifyToken, async (req, res) => {
     const { id, item_id } = req.params;
     const { quantity } = req.body;
 
@@ -141,7 +141,7 @@ router.put('/:id/items/:item_id', async (req, res) => {
     }
 });
 
-router.delete('/:id/items/:item_id', async (req, res) => {
+router.delete('/:id/items/:item_id', verifyToken, async (req, res) => {
     const { id, item_id } = req.params;
 
     try {
@@ -163,7 +163,7 @@ router.delete('/:id/items/:item_id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
 
     try {
