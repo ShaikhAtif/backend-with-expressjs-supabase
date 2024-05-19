@@ -3,6 +3,7 @@ var { createClient } = require('@supabase/supabase-js');
 var router = express.Router();
 var env = require("dotenv");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 env.config();
 
@@ -10,6 +11,7 @@ const supabaseUrl = 'https://cihwtaciqnlnxxjygbht.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const saltRounds = process.env.SALT_ROUND ? parseInt(process.env.SALT_ROUND) : 10
 const supabase = createClient(supabaseUrl, supabaseKey)
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
@@ -53,8 +55,17 @@ router.post('/sign/in', async function (req, res, next) {
     return res.status(401).send({ error: 'Invalid email or password.' });
   }
 
+
+  const token = jwt.sign({ userId: user._id }, JWT_SECRET_KEY, {
+    expiresIn: '1h',
+  });
+
   // User successfully signed in
-  res.send({ message: 'Sign-in successful.', data: user });
+  res.send(
+    {
+      message: 'Sign-in successful.',
+      data: { user: { ...user, token: token } }
+    });
 });
 
 router.post('/sign/up', async function (req, res, next) {
