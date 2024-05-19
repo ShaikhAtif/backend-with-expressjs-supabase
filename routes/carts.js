@@ -2,6 +2,7 @@ var express = require('express');
 var { createClient } = require('@supabase/supabase-js');
 var router = express.Router();
 var env = require("dotenv");
+const verifyToken = require('../middlewares/authMiddleware');
 
 env.config();
 

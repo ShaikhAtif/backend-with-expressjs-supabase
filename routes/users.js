@@ -3,6 +3,7 @@ var { createClient } = require('@supabase/supabase-js');
 var router = express.Router();
 var env = require("dotenv");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 env.config();
 

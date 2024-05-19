@@ -2,6 +2,7 @@ var express = require('express');
 var { createClient } = require('@supabase/supabase-js');
 var router = express.Router();
 var env = require("dotenv");
+const verifyToken = require('../middlewares/authMiddleware');
 
 env.config();
 
@@ -218,18 +219,18 @@ router.put('/:id', verifyToken, async (req, res) => {
  */
 router.delete('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
-  
+
     const { data, error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id);
-  
+        .from('products')
+        .delete()
+        .eq('id', id);
+
     if (error) {
-      console.error(error);
-      res.status(500).send({ error: 'Failed to delete product.' });
+        console.error(error);
+        res.status(500).send({ error: 'Failed to delete product.' });
     } else {
         res.status(200).send({ message: 'Product deleted successfully.' });
     }
-  });
-  
+});
+
 module.exports = router;
